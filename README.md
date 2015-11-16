@@ -1,3 +1,6 @@
 # user-webui-backend
 
-Dient der Intgration der Web Oberfläche in das InteractiveLecture Projekt
+Dient der Integration des user-webui-service in das InteractiveLecture Projekt.
+
+Siehe unter:
+https://github.com/InteractiveLecture/user-webui-service
