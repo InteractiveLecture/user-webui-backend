@@ -3,35 +3,37 @@ package main
 import (
 	//"github.com/gorilla/context"
 
+	"fmt"
 	"log"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"time"
 
-	"github.com/InteractiveLecture/middlewares/aclware"
-	"github.com/InteractiveLecture/middlewares/jwtware"
-	"github.com/InteractiveLecture/serviceclient"
-	"github.com/InteractiveLecture/serviceclient/cacheadapter"
+	"github.com/InteractiveLecture/servicecache"
 	"github.com/gorilla/mux"
 )
 
 func main() {
 	r := mux.NewRouter()
-	adapter := cacheadapter.New("discovery:8500", 10*time.Second, 5*time.Second, 3)
-	serviceclient.Configure(adapter, "acl-service", "authentication-service")
-	//
-	r.Methods("GET").
-		Path("/topics").
-		Handler(jwtware.New(
-			authware.New(
-				New(nil, "lecture-service"), nil, "user"
-					)
-				)
-			)
-			
-	r.Methods("POST").
-		Path("/topics")
-	//Handler()
+	servicecache.Configure("discovery:8500", 10*time.Second, "authentication-service", "lecture-service")
+	//serviceclient.Configure(cacheadapter.New("discovery:8500", 10*time.Second, 5*time.Second, 3))
+	servicecache.Start(3, 5*time.Second)
 	log.Println("listening on 8000")
 	// Bind to a port and pass our router in
 	http.ListenAndServe(":8000", r)
+}
+
+func createProxy(service, servicePath string) http.Handler {
+	address, _ := servicecache.GetServiceAddress(service)
+	targetUrl, err := url.Parse(fmt.Sprintf("http://%s%s", address, servicePath))
+	if err != nil {
+		panic(err)
+	}
+	handler := httputil.NewSingleHostReverseProxy(targetUrl)
+	handler.Director = func(r *http.Request) {
+		r.Host = address
+		r.URL = targetUrl
+	}
+	return handler
 }

@@ -1,2 +1,4 @@
 # Keine Compilierten Dateien
 *.a
+# no vim swaps
+**/*.swp
