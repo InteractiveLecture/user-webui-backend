@@ -125,6 +125,44 @@ func main() {
 		"lecture-service",
 		"/topics/{id}/assistants")))
 
+	// HINTS Anfragen
+	//---------------------
+
+	// Einen einzelnen Hint anfragen
+	r.Methods("GET").
+		Path("/hint/{id}").
+		Handler(jwtware.New(createProxy(
+		"lecture-service",
+		"/hint/{id}")))
+
+	// Fügt einen weiteren Hint hinzu
+	r.Methods("POST").
+		Path("/hint/{id}").
+		Handler(jwtware.New(createProxy(
+		"lecture-service",
+		"/hint/{id}")))
+
+	// Löscht einen Hint
+	r.Methods("DELETE").
+		Path("/hint/{id}").
+		Handler(jwtware.New(createProxy(
+		"lecture-service",
+		"/hint/{id}")))
+
+	// Verändert einen Hint
+	r.Methods("PUT").
+		Path("/hint/{id}").
+		Handler(jwtware.New(createProxy(
+		"lecture-service",
+		"/hint/{id}")))
+
+	// Konsumiert den angebenen Hint
+	r.Methods("POST").
+		Path("/hint/{id}/consume").
+		Handler(jwtware.New(createProxy(
+		"lecture-service",
+		"/hint/{id}/consume")))
+
 	// Bind to a port and pass our router in
 	http.ListenAndServe(":8000", r)
 }
